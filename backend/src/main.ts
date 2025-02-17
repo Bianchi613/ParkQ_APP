@@ -32,7 +32,7 @@ async function bootstrap() {
   // Configuração da rota da documentação (http://localhost:3000/api/docs)
   SwaggerModule.setup('api/docs', app, document); // 🔥 Corrigida a URL para /api/docs
 
-  await app.listen(3000, () => {
+  await app.listen(3000, '0.0.0.0', () => {
     console.log(`🚀 Servidor rodando em http://localhost:3000/`);
     console.log(
       `📚 Documentação do Swagger disponível em http://localhost:3000/api/docs`,
