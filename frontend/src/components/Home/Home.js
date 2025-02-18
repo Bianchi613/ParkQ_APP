@@ -34,13 +34,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#0b0b0b', // Cor de fundo
+    backgroundColor: '#ffffff', // Fundo branco
   },
   content: {
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    padding: 40,
+    backgroundColor: '#ffffff', // Fundo branco para o conteúdo
+    padding: 50,
     borderRadius: 15,
-    width: '80%',
+    width: '30%',
     alignItems: 'center',
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
@@ -52,11 +52,11 @@ const styles = StyleSheet.create({
     fontSize: 35,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#333',
+    color: '#333', // Título escuro
   },
   subtitle: {
     fontSize: 18,
-    color: '#555',
+    color: '#555', // Subtítulo mais suave
     marginBottom: 30,
     textAlign: 'center',
   },
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   btnPrimary: {
-    backgroundColor: '#0b0b0b',
+    backgroundColor: '#000', // Botão preto
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 25,
@@ -74,9 +74,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   btnSecondary: {
-    backgroundColor: 'transparent',
+    backgroundColor:  '#000',
     borderWidth: 2,
-    borderColor: '#bfbfbf',
+    borderColor: '#000', // Borda preta
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 25,
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   btnText: {
-    color: '#fff',
+    color: '#fff', // Texto branco para contraste
     fontSize: 16,
     fontWeight: 'bold',
     textTransform: 'uppercase',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Alert, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Importando AsyncStorage
@@ -32,6 +32,7 @@ const TariffPlan = () => {
   };
 
   const handleSubmit = async () => {
+    // Validando os dados
     if (parseFloat(taxaBase) < 0 || parseFloat(taxaHora) < 0 || parseFloat(taxaDiaria) < 0) {
       setError("As taxas devem ser valores positivos.");
       return;
@@ -95,16 +96,6 @@ const TariffPlan = () => {
     setEditingPlan(null);
   };
 
-  // Função para salvar o id do estacionamento usando AsyncStorage
-  const saveEstacionamentoId = async (id) => {
-    try {
-      await AsyncStorage.setItem('id_estacionamento', id.toString());
-      console.log('ID do estacionamento salvo com sucesso!');
-    } catch (error) {
-      console.error('Erro ao salvar o ID do estacionamento:', error);
-    }
-  };
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Header /> {/* Incluindo o Header aqui */}
@@ -153,7 +144,8 @@ const TariffPlan = () => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.planList}>
+      {/* Exibindo os planos de tarifação de forma horizontal com rolagem */}
+      <ScrollView horizontal={true} style={styles.planList}>
         {planos.map(plano => (
           <View key={plano.id} style={styles.planItem}>
             <Text style={styles.planDescription}>{plano.descricao}</Text>
@@ -172,7 +164,7 @@ const TariffPlan = () => {
             </View>
           </View>
         ))}
-      </View>
+      </ScrollView>
 
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
         <Text style={styles.buttonText}>Voltar</Text>
@@ -184,7 +176,7 @@ const TariffPlan = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 40,
+    padding: 60,
     backgroundColor: '#f5f5f5',
   },
   header: {
@@ -229,13 +221,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   planList: {
+    flexDirection: 'row',  // Exibe os planos horizontalmente
     marginTop: 20,
   },
   planItem: {
     backgroundColor: '#fff',
     padding: 20,
     borderRadius: 8,
-    marginBottom: 15,
+    marginRight: 10, // Espaço entre os itens
+    width: 250,  // Definindo a largura dos itens
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,

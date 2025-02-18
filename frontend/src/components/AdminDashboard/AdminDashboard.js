@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Importando AsyncStorage
 import Header from "../Layout/Header"; // Importando o Header
@@ -16,17 +16,31 @@ const AdminDashboard = () => {
   const navigation = useNavigation();
 
   useEffect(() => {
-    // Buscar o ID do estacionamento do AsyncStorage
-    const fetchEstacionamentoId = async () => {
-      const id = await AsyncStorage.getItem("id_estacionamento");
-      if (id) {
-        setEstacionamentoId(id); // Atualizando o estado com o id do estacionamento
+    // Buscar o ID do usuário do AsyncStorage
+    const fetchUserData = async () => {
+      const userId = await AsyncStorage.getItem("userId"); // ID do usuário logado
+      if (userId) {
+        try {
+          // Requisição para obter as informações do usuário, incluindo id_estacionamento
+          const response = await axios.get(`http://localhost:3000/usuarios/${userId}`);
+          const userData = response.data;
+          
+          // Verificando se o id_estacionamento está presente e atribuindo
+          if (userData.id_estacionamento) {
+            setEstacionamentoId(userData.id_estacionamento); // Atualiza o estado com id_estacionamento
+          } else {
+            setError("❌ Não há estacionamento associado ao usuário.");
+          }
+        } catch (error) {
+          console.error("Erro ao buscar os dados do usuário:", error);
+          setError("Erro ao obter dados do usuário.");
+        }
       } else {
-        setError("❌ ID do estacionamento não encontrado. Faça login novamente.");
+        setError("❌ Usuário não autenticado. Faça login novamente.");
       }
     };
 
-    fetchEstacionamentoId();
+    fetchUserData();
   }, []);
 
   useEffect(() => {
@@ -55,6 +69,7 @@ const AdminDashboard = () => {
       })
       .catch((error) => {
         console.error("Erro ao buscar estacionamento:", error);
+        setError("Erro ao buscar informações do estacionamento.");
       });
   }, [estacionamentoId]);
 
@@ -236,8 +251,7 @@ const styles = StyleSheet.create({
     color: '#555',
   },
   vagaStatus: {
-    fontSize: 9
-    ,
+    fontSize: 9,
     color: '#555',
   },
   reservada: {

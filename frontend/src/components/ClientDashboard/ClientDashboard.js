@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Image, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Image } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import Header from "../Layout/Header"; // Importando o Header
 
 const ClientDashboard = () => {
   const [estacionamentos, setEstacionamentos] = useState([]); 
@@ -38,6 +39,7 @@ const ClientDashboard = () => {
 
   return (
     <View style={styles.container}>
+      <Header /> {/* Incluindo o Header aqui */}
       <Text style={styles.title}>Vagas Próximas</Text>
       {errorMessage && <Text style={styles.errorMessage}>{errorMessage}</Text>}
       
@@ -91,12 +93,12 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     marginBottom: 20,
     color: '#333333',
   },
   searchBar: {
-    width: '100%',
+    width: '75%',
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,
@@ -128,9 +130,9 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   defaultImage: {
-    width: 200,
+    width: 190,
     height: 120,
-    borderRadius: 8,
+    borderRadius: 10,
     backgroundColor: '#e0e0e0',
     justifyContent: 'center',
     alignItems: 'center',
@@ -140,7 +142,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   estacionamentoName: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   estacionamentoLocation: {

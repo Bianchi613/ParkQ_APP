@@ -16,17 +16,15 @@ const ProfileSettings = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Recuperar o ID do usuário do AsyncStorage
-  const userId = AsyncStorage.getItem('userId'); 
-
   useEffect(() => {
-    if (!userId) {
-      console.error('ID do usuário não encontrado.');
-      navigation.navigate('Login'); 
-      return;
-    }
-
     const fetchUserData = async () => {
+      const userId = await AsyncStorage.getItem('userId'); // Obtendo userId de forma assíncrona
+      if (!userId) {
+        console.error('ID do usuário não encontrado.');
+        navigation.navigate('Login'); 
+        return;
+      }
+
       setLoading(true);
       try {
         const { data } = await axios.get(`http://localhost:3000/usuarios/${userId}`);
@@ -39,8 +37,8 @@ const ProfileSettings = ({ navigation }) => {
       }
     };
 
-    fetchUserData();
-  }, [userId]);
+    fetchUserData(); // Chama a função assíncrona
+  }, [navigation]); // Dependência de navigation para o caso de redirecionamento
 
   const handleChange = (name, value) => {
     setUserData({
@@ -83,6 +81,7 @@ const ProfileSettings = ({ navigation }) => {
 
     setLoading(true);
     try {
+      const userId = await AsyncStorage.getItem('userId'); // Garantir que userId é obtido para o PUT
       await axios.put(`http://localhost:3000/usuarios/${userId}`, userData);
       Alert.alert('Alterações salvas com sucesso!');
       setEditing(false); 
@@ -186,9 +185,7 @@ const ProfileSettings = ({ navigation }) => {
       </View>
     </View>
   );
-};
-
-const styles = StyleSheet.create({
+};const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
@@ -212,27 +209,34 @@ const styles = StyleSheet.create({
   },
   buttonGroup: {
     marginTop: 20,
+    alignItems: 'center', // Centraliza os botões horizontalmente
   },
   editButton: {
     backgroundColor: '#343535',
-    padding: 12,
+    paddingVertical: 8,  // Mantém a altura do botão
+    paddingHorizontal: 15, // Mantém o espaço horizontal dentro do botão
     borderRadius: 8,
     marginBottom: 10,
+    width: '30%',  // Define a largura do botão (60% da largura disponível)
   },
   saveButton: {
     backgroundColor: '#4CAF50',
-    padding: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 15,
     borderRadius: 8,
     marginBottom: 10,
+    width: '30%', // Define a largura do botão
   },
   backButton: {
     backgroundColor: '#f44336',
-    padding: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 15,
     borderRadius: 8,
+    width: '30%',  // Define a largura do botão
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 14, // Diminui o tamanho da fonte do botão
     textAlign: 'center',
   },
   errorMessage: {

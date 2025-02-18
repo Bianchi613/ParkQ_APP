@@ -36,13 +36,13 @@ const Login = () => {
         // Armazenando o token JWT e o ID do usuário no AsyncStorage
         await AsyncStorage.setItem('token', token);
         await AsyncStorage.setItem('userId', userId);
+        await AsyncStorage.setItem('id_estacionamento', id_estacionamento);
 
-        // Armazenar o id_estacionamento, se existir
-        if (id_estacionamento) {
-          await AsyncStorage.setItem('id_estacionamento', id_estacionamento);
-        } else {
-          console.warn('id_estacionamento não encontrado na resposta do login.');
-        }
+     
+
+        // Verificar se o id_estacionamento está armazenado
+        const storedIdEstacionamento = await AsyncStorage.getItem('id_estacionamento');
+        console.log('id_estacionamento armazenado:', storedIdEstacionamento);
 
         // Redireciona conforme o perfil do usuário
         if (role === 'ADMIN') {
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
   },
   btn: {
-    backgroundColor: '#6b6969',
+    backgroundColor: '#000',
     padding: 14,
     borderRadius: 5,
     width: '100%',

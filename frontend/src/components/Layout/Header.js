@@ -26,7 +26,7 @@ const Header = () => {
       // Acessa o userId do AsyncStorage
       const userId = await AsyncStorage.getItem('userId');
       if (userId) {
-        navigation.navigate('Profile', { userId }); // Redireciona para o perfil
+        navigation.navigate('ProfileSettings', { userId }); // Redireciona para o perfil
       } else {
         Alert.alert('Erro', 'ID do usuário não encontrado!');
       }
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   header: {
     width: '100%',
     backgroundColor: '#fefefe',
-    padding: 15,
+    padding: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Alert, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -22,7 +22,6 @@ const Payment = () => {
     }
 
     try {
-      // Criação da reserva
       const dataReserva = new Date().toISOString();
       const dataFim = null;
 
@@ -37,11 +36,9 @@ const Payment = () => {
 
       const reservaId = reservaResponse.data.id;
 
-      // Recuperando os detalhes da reserva
       const detalhesReservaResponse = await axios.get(`http://localhost:3000/reservas/${reservaId}`);
       const detalhesReserva = detalhesReservaResponse.data;
 
-      // Registrando o pagamento
       const pagamentoResponse = await axios.post('http://localhost:3000/pagamentos', {
         id_reserva: reservaId,
         metodo_pagamento: paymentMethod,
@@ -49,11 +46,10 @@ const Payment = () => {
         data_hora: new Date().toISOString(),
       });
 
-      // Reservando a vaga
       const reservaVagaResponse = await axios.post(`http://localhost:3000/vagas/${id_vaga}/reservar`);
 
       Alert.alert('Sucesso', 'Pagamento e reserva realizados com sucesso!');
-      navigation.navigate('Success'); // Redirecionando para a página de sucesso
+      navigation.navigate('Success');
     } catch (error) {
       console.error('Erro ao processar pagamento:', error);
       Alert.alert('Erro', 'Erro ao processar pagamento. Tente novamente.');
@@ -71,7 +67,7 @@ const Payment = () => {
       }
     }
 
-    navigation.goBack(); // Voltar para a tela anterior
+    navigation.goBack();
   };
 
   return (
@@ -80,28 +76,31 @@ const Payment = () => {
 
       {/* Exibindo informações da reserva */}
       <View style={styles.reservationDetails}>
-        <Text><strong>Vaga ID:</strong> {id_vaga}</Text>
-        <Text><strong>Valor da Reserva:</strong> R$ {valor}</Text>
-        <Text><strong>Plano Selecionado:</strong> {plano_descricao || 'Plano não selecionado'}</Text>
+        <Text style={styles.detailsText}><strong>Vaga ID:</strong> {id_vaga}</Text>
+        <Text style={styles.detailsText}><strong>Valor da Reserva:</strong> R$ {valor}</Text>
+        <Text style={styles.detailsText}><strong>Plano Selecionado:</strong> {plano_descricao || 'Plano não selecionado'}</Text>
       </View>
 
       <View style={styles.paymentMethods}>
+        {/* Pagamento por PIX */}
         <TouchableOpacity
-          style={styles.paymentOption}
+          style={[styles.paymentOption, paymentMethod === 'PIX' && styles.selectedPayment]}
           onPress={() => handlePaymentChange('PIX')}
         >
           <Text style={styles.paymentText}>Pagamento por PIX</Text>
         </TouchableOpacity>
 
+        {/* Pagamento por Cartão de Crédito */}
         <TouchableOpacity
-          style={styles.paymentOption}
+          style={[styles.paymentOption, paymentMethod === 'Cartão de Crédito' && styles.selectedPayment]}
           onPress={() => handlePaymentChange('Cartão de Crédito')}
         >
           <Text style={styles.paymentText}>Cartão de Crédito</Text>
         </TouchableOpacity>
 
+        {/* Pagamento por Boleto Bancário */}
         <TouchableOpacity
-          style={styles.paymentOption}
+          style={[styles.paymentOption, paymentMethod === 'Boleto Bancário' && styles.selectedPayment]}
           onPress={() => handlePaymentChange('Boleto Bancário')}
         >
           <Text style={styles.paymentText}>Boleto Bancário</Text>
@@ -132,20 +131,35 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginBottom: 20,
     fontWeight: 'bold',
+    color: '#333',
   },
   reservationDetails: {
     marginBottom: 20,
+    alignItems: 'center',
+  },
+  detailsText: {
+    fontSize: 16,
+    marginBottom: 5,
+    color: '#555',
   },
   paymentMethods: {
     marginBottom: 30,
+    width: '30%',  // Ajustando a largura para 80% da tela
   },
   paymentOption: {
-    padding: 12,
+    padding: 15,
     backgroundColor: '#f0f0f0',
-    borderRadius: 5,
-    marginBottom: 10,
+    borderRadius: 10,
+    marginBottom: 15,
     width: '100%',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    transition: 'all 0.3s ease',  // Adding transition for smooth effect
+  },
+  selectedPayment: {
+    backgroundColor: '#000',  // Black background when selected
+    borderColor: '#333',  // Darker border
   },
   paymentText: {
     fontSize: 18,
@@ -153,20 +167,22 @@ const styles = StyleSheet.create({
   },
   buttons: {
     marginTop: 20,
-    width: '100%',
+    width: '30%',  // Ajustando a largura para 80% da tela
   },
   confirmButton: {
-    padding: 12,
-    backgroundColor: '#28a745',
-    borderRadius: 5,
+    padding: 15,
+    backgroundColor: '#000',  // Black background for confirm button
+    borderRadius: 10,
     marginBottom: 15,
     alignItems: 'center',
+    width: '100%',  // Garantindo que o botão não ocupe a tela inteira
   },
   backButton: {
-    padding: 12,
-    backgroundColor: '#e74c3c',
-    borderRadius: 5,
+    padding: 15,
+    backgroundColor: '#e74c3c',  // Red background for cancel button
+    borderRadius: 10,
     alignItems: 'center',
+    width: '100%',  // Garantindo que o botão não ocupe a tela inteira
   },
   buttonText: {
     color: '#fff',
