@@ -37,14 +37,19 @@ const TariffPlan = () => {
       setError("As taxas devem ser valores positivos.");
       return;
     }
-    if (new Date(dataVigencia) < new Date()) {
+
+    // Convertendo a data para o formato YYYY-MM-DD antes de enviar
+    const dataFormatada = new Date(dataVigencia).toLocaleDateString('en-CA'); // Formato YYYY-MM-DD
+
+    // Validando se a data de vigência é válida
+    if (new Date(dataFormatada) < new Date()) {
       setError("A data de vigência não pode ser uma data passada.");
       return;
     }
 
     const novoPlano = {
       descricao,
-      data_vigencia: dataVigencia,
+      data_vigencia: dataFormatada, // Envia a data no formato correto
       taxa_base: parseFloat(taxaBase),
       taxa_hora: parseFloat(taxaHora),
       taxa_diaria: parseFloat(taxaDiaria),
@@ -81,7 +86,7 @@ const TariffPlan = () => {
   const handleEdit = (plano) => {
     setEditingPlan(plano);
     setDescricao(plano.descricao);
-    setDataVigencia(plano.data_vigencia.split("T")[0]);
+    setDataVigencia(plano.data_vigencia.split("T")[0]); // Pega a data no formato correto
     setTaxaBase(plano.taxa_base);
     setTaxaHora(plano.taxa_hora);
     setTaxaDiaria(plano.taxa_diaria);
