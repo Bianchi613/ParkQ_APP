@@ -3,6 +3,9 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 
+// Definindo a URL base do backend usando variáveis de ambiente
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+
 const Register = () => {
   const [formData, setFormData] = useState({
     nome: '',
@@ -39,7 +42,7 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:3000/usuarios', {
+      const response = await axios.post(`${BASE_URL}/usuarios`, {
         nome: formData.nome,
         email: formData.email,
         telefone: formData.telefone,
@@ -152,7 +155,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   submitButton: {
-    width: '20%',
+    width: '30%',
     padding: 10,
     backgroundColor: '#2a2a2a',
     borderRadius: 5,
@@ -160,7 +163,7 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 12,
     textAlign: 'center',
   },
   adminToggle: {

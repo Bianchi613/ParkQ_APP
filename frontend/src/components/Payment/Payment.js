@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Alert, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRoute } from '@react-navigation/native';
+
+// Definindo a URL base do backend usando variáveis de ambiente
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
 const Payment = () => {
   const [paymentMethod, setPaymentMethod] = useState('');
@@ -25,7 +28,8 @@ const Payment = () => {
       const dataReserva = new Date().toISOString();
       const dataFim = null;
 
-      const reservaResponse = await axios.post('http://localhost:3000/reservas', {
+      // Criar reserva
+      const reservaResponse = await axios.post(`${BASE_URL}/reservas`, {
         id_vaga,
         id_usuario,
         valor,
@@ -36,17 +40,16 @@ const Payment = () => {
 
       const reservaId = reservaResponse.data.id;
 
-      const detalhesReservaResponse = await axios.get(`http://localhost:3000/reservas/${reservaId}`);
-      const detalhesReserva = detalhesReservaResponse.data;
-
-      const pagamentoResponse = await axios.post('http://localhost:3000/pagamentos', {
+      // Realizar pagamento
+      await axios.post(`${BASE_URL}/pagamentos`, {
         id_reserva: reservaId,
         metodo_pagamento: paymentMethod,
         valor_pago: valor,
         data_hora: new Date().toISOString(),
       });
 
-      const reservaVagaResponse = await axios.post(`http://localhost:3000/vagas/${id_vaga}/reservar`);
+      // Marcar vaga como reservada
+      await axios.post(`${BASE_URL}/vagas/${id_vaga}/reservar`);
 
       Alert.alert('Sucesso', 'Pagamento e reserva realizados com sucesso!');
       navigation.navigate('Success');
@@ -59,7 +62,7 @@ const Payment = () => {
   const handleBack = async () => {
     if (id_vaga) {
       try {
-        await axios.post(`http://localhost:3000/vagas/${id_vaga}/liberar`);
+        await axios.post(`${BASE_URL}/vagas/${id_vaga}/liberar`);
         Alert.alert('Sucesso', 'Vaga liberada com sucesso.');
       } catch (error) {
         console.error('Erro ao liberar a vaga:', error);
@@ -71,18 +74,17 @@ const Payment = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Escolha a forma de Pagamento:</Text>
 
       {/* Exibindo informações da reserva */}
       <View style={styles.reservationDetails}>
-        <Text style={styles.detailsText}><strong>Vaga ID:</strong> {id_vaga}</Text>
-        <Text style={styles.detailsText}><strong>Valor da Reserva:</strong> R$ {valor}</Text>
-        <Text style={styles.detailsText}><strong>Plano Selecionado:</strong> {plano_descricao || 'Plano não selecionado'}</Text>
+        <Text style={styles.detailsText}><Text style={{ fontWeight: 'bold' }}>Vaga ID:</Text> {id_vaga}</Text>
+        <Text style={styles.detailsText}><Text style={{ fontWeight: 'bold' }}>Valor da Reserva:</Text> R$ {valor}</Text>
+        <Text style={styles.detailsText}><Text style={{ fontWeight: 'bold' }}>Plano Selecionado:</Text> {plano_descricao || 'Plano não selecionado'}</Text>
       </View>
 
       <View style={styles.paymentMethods}>
-        {/* Pagamento por PIX */}
         <TouchableOpacity
           style={[styles.paymentOption, paymentMethod === 'PIX' && styles.selectedPayment]}
           onPress={() => handlePaymentChange('PIX')}
@@ -90,7 +92,6 @@ const Payment = () => {
           <Text style={styles.paymentText}>Pagamento por PIX</Text>
         </TouchableOpacity>
 
-        {/* Pagamento por Cartão de Crédito */}
         <TouchableOpacity
           style={[styles.paymentOption, paymentMethod === 'Cartão de Crédito' && styles.selectedPayment]}
           onPress={() => handlePaymentChange('Cartão de Crédito')}
@@ -98,7 +99,6 @@ const Payment = () => {
           <Text style={styles.paymentText}>Cartão de Crédito</Text>
         </TouchableOpacity>
 
-        {/* Pagamento por Boleto Bancário */}
         <TouchableOpacity
           style={[styles.paymentOption, paymentMethod === 'Boleto Bancário' && styles.selectedPayment]}
           onPress={() => handlePaymentChange('Boleto Bancário')}
@@ -116,7 +116,7 @@ const Payment = () => {
           <Text style={styles.buttonText}>Cancelar e Voltar</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   },
   paymentMethods: {
     marginBottom: 30,
-    width: '30%',  // Ajustando a largura para 80% da tela
+    width: '30%',
   },
   paymentOption: {
     padding: 15,
@@ -155,11 +155,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#ddd',
-    transition: 'all 0.3s ease',  // Adding transition for smooth effect
   },
   selectedPayment: {
-    backgroundColor: '#000',  // Black background when selected
-    borderColor: '#333',  // Darker border
+    backgroundColor: '#000',
+    borderColor: '#333',
   },
   paymentText: {
     fontSize: 18,
@@ -167,22 +166,22 @@ const styles = StyleSheet.create({
   },
   buttons: {
     marginTop: 20,
-    width: '30%',  // Ajustando a largura para 80% da tela
+    width: '50%',
   },
   confirmButton: {
-    padding: 15,
-    backgroundColor: '#000',  // Black background for confirm button
+    padding: 25,
+    backgroundColor: '#000',
     borderRadius: 10,
     marginBottom: 15,
     alignItems: 'center',
-    width: '100%',  // Garantindo que o botão não ocupe a tela inteira
+    width: '100%',
   },
   backButton: {
-    padding: 15,
-    backgroundColor: '#e74c3c',  // Red background for cancel button
+    padding: 25,
+    backgroundColor: '#e74c3c',
     borderRadius: 10,
     alignItems: 'center',
-    width: '100%',  // Garantindo que o botão não ocupe a tela inteira
+    width: '100%',
   },
   buttonText: {
     color: '#fff',

@@ -4,6 +4,9 @@ import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import Header from "../Layout/Header"; // Importando o Header
 
+// Definindo a URL base do backend usando variáveis de ambiente
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+
 const ClientDashboard = () => {
   const [estacionamentos, setEstacionamentos] = useState([]); 
   const [searchTerm, setSearchTerm] = useState('');
@@ -12,7 +15,7 @@ const ClientDashboard = () => {
 
   useEffect(() => {
     // Carregar estacionamentos ao iniciar o componente
-    axios.get('http://localhost:3000/estacionamentos')
+    axios.get(`${BASE_URL}/estacionamentos`)
       .then(({ data }) => {
         if (Array.isArray(data)) {
           setEstacionamentos(data);
@@ -56,14 +59,18 @@ const ClientDashboard = () => {
         renderItem={({ item }) => (
           <View style={styles.estacionamentoItem}>
             {/* Imagem do estacionamento */}
-            {item.imagemUrl ? (
-              <Image source={{ uri: item.imagemUrl }} style={styles.estacionamentoImage} />
-            ) : (
-              <View style={styles.defaultImage}><Text>Imagem indisponível</Text></View>
-            )}
+            <View style={styles.imageContainer}>
+              {item.imagemUrl ? (
+                <Image source={{ uri: item.imagemUrl }} style={styles.estacionamentoImage} />
+              ) : (
+                <View style={styles.defaultImage}>
+                  <Text style={styles.defaultImageText}>Imagem indisponível</Text>
+                </View>
+              )}
+            </View>
 
             {/* Informações do estacionamento */}
-            <View style={styles.estacionamentoInfo}>
+            <View style={styles.infoContainer}>
               <Text style={styles.estacionamentoName}>{item.nome}</Text>
               <Text style={styles.estacionamentoLocation}>{item.localizacao}</Text>
               <Text style={styles.estacionamentoCapacity}>{item.capacidade} vagas disponíveis</Text>
@@ -88,17 +95,18 @@ const ClientDashboard = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
     backgroundColor: '#ffffff',
     padding: 20,
   },
   title: {
     fontSize: 22,
+    fontWeight: 'bold',
     marginBottom: 20,
     color: '#333333',
+    textAlign: 'center',
   },
   searchBar: {
-    width: '75%',
+    width: '100%',
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,
@@ -112,46 +120,57 @@ const styles = StyleSheet.create({
     color: '#ff4d4d',
     fontSize: 16,
     marginBottom: 20,
+    textAlign: 'center',
   },
   estacionamentoItem: {
-    flexDirection: 'row',
     backgroundColor: '#f9f9f9',
-    padding: 20,
     borderRadius: 10,
     marginBottom: 15,
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-    width: '100%',
+    padding: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  imageContainer: {
     alignItems: 'center',
+    marginBottom: 15,
   },
   estacionamentoImage: {
-    width: 200,
-    height: 120,
+    width: '100%',
+    height: 150,
     borderRadius: 8,
-    marginRight: 20,
   },
   defaultImage: {
-    width: 190,
-    height: 120,
-    borderRadius: 10,
+    width: '100%',
+    height: 150,
+    borderRadius: 8,
     backgroundColor: '#e0e0e0',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  estacionamentoInfo: {
-    flex: 1,
-    flexDirection: 'column',
+  defaultImageText: {
+    color: '#666666',
+    fontSize: 14,
+  },
+  infoContainer: {
+    marginBottom: 15,
   },
   estacionamentoName: {
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: 'bold',
+    marginBottom: 5,
   },
   estacionamentoLocation: {
     fontSize: 14,
     color: '#666666',
+    marginBottom: 5,
   },
   estacionamentoCapacity: {
     fontSize: 14,
     color: '#666666',
+    marginBottom: 5,
   },
   estacionamentoCategory: {
     fontSize: 14,
@@ -159,18 +178,20 @@ const styles = StyleSheet.create({
   },
   reserveButton: {
     backgroundColor: '#333333',
-    padding: 10,
+    padding: 12,
     borderRadius: 8,
-    marginTop: 10,
+    alignItems: 'center',
   },
   reserveButtonText: {
     color: '#ffffff',
     fontSize: 16,
+    fontWeight: 'bold',
   },
   noResultsText: {
     color: '#666666',
     fontSize: 16,
     textAlign: 'center',
+    marginTop: 20,
   },
 });
 

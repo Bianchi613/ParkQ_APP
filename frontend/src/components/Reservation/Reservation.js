@@ -4,30 +4,29 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
+// Definindo a URL base do backend usando variáveis de ambiente
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
 const Reservation = () => {
   const [vagas, setVagas] = useState([]);
   const [planosTarifacao, setPlanosTarifacao] = useState([]);
   const [planoSelecionado, setPlanoSelecionado] = useState({ id: null, taxa_base: 0 });
-  const [isPlanosVisible, setIsPlanosVisible] = useState(false); // Controla a visibilidade do painel
+  const [isPlanosVisible, setIsPlanosVisible] = useState(false);
   const route = useRoute();
   const navigation = useNavigation();
 
   const { id } = route.params;
 
   useEffect(() => {
-    // Buscar informações do estacionamento
-    axios.get(`http://localhost:3000/estacionamentos/${id}`)
+    axios.get(`${BASE_URL}/estacionamentos/${id}`)
       .then(response => setEstacionamento(response.data))
       .catch(error => console.error('Erro ao carregar o estacionamento:', error));
 
-    // Buscar vagas
-    axios.get(`http://localhost:3000/vagas?id_estacionamento=${id}`)
+    axios.get(`${BASE_URL}/vagas?id_estacionamento=${id}`)
       .then(response => setVagas(response.data))
       .catch(error => console.error('Erro ao carregar as vagas:', error));
 
-    // Buscar planos de tarifação
-    axios.get('http://localhost:3000/planos-tarifacao')
+    axios.get(`${BASE_URL}/planos-tarifacao`)
       .then(response => setPlanosTarifacao(response.data))
       .catch(error => console.error('Erro ao carregar os planos de tarifação:', error));
   }, [id]);
@@ -77,7 +76,6 @@ const Reservation = () => {
     <View style={styles.container}>
       <Text style={styles.title}>Reservar uma vaga</Text>
 
-      {/* Botão para alternar a visibilidade do painel de planos */}
       <TouchableOpacity
         style={styles.toggleButton}
         onPress={() => setIsPlanosVisible(!isPlanosVisible)}
@@ -85,33 +83,30 @@ const Reservation = () => {
         <Text style={styles.toggleButtonText}>{isPlanosVisible ? 'Esconder Planos' : 'Mostrar Planos'}</Text>
       </TouchableOpacity>
 
-      {/* Painel retrátil para selecionar o plano de tarifação */}
       {isPlanosVisible && (
         <View style={styles.planosContainer}>
           <Text style={styles.subTitle}>Selecione um plano de tarifação:</Text>
           {planosTarifacao.map((item) => (
             <TouchableOpacity
               key={item.id}
-              style={[styles.planButton, planoSelecionado.id === item.id && styles.selectedPlanButton]} // Aplica o estilo para o plano selecionado
+              style={[styles.planButton, planoSelecionado.id === item.id && styles.selectedPlanButton]}
               onPress={() => setPlanoSelecionado(item)}
             >
               <Text style={styles.planText}>
                 {item.descricao} - R$ {item.taxa_base}
-                {planoSelecionado.id === item.id && ' (Selecionado)'} {/* Adiciona texto indicando que o plano foi selecionado */}
+                {planoSelecionado.id === item.id && ' (Selecionado)'}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
       )}
 
-      {/* Exibindo as vagas */}
       <ScrollView style={styles.vagasContainer}>
         <View style={styles.vagasList}>
           {vagas.map((vaga) => renderVaga(vaga))}
         </View>
       </ScrollView>
 
-      {/* Botão "Voltar" com fundo preto */}
       <TouchableOpacity
         style={styles.actionButton}
         onPress={() => navigation.goBack()}
@@ -140,7 +135,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   subTitle: {
-    alignItems: 'center',
     fontSize: 18,
     marginBottom: 10,
   },
@@ -155,12 +149,11 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
   },
   planText: {
-    alignItems: 'center',
     fontSize: 16,
     color: '#333',
   },
   selectedPlanButton: {
-    backgroundColor: '#dcdcdc',  // Cor de fundo para o plano selecionado
+    backgroundColor: '#dcdcdc',
   },
   vagasContainer: {
     width: '100%',

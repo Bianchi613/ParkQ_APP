@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Usando AsyncStorage para persistência
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+
+// Definindo a URL base do backend usando variáveis de ambiente
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -21,34 +24,24 @@ const Login = () => {
   };
 
   const handleSubmit = async () => {
-    setError(''); // Resetando o erro antes de enviar
+    setError('');
 
     try {
-      // Enviando a requisição para a API de login
-      const response = await axios.post('http://localhost:3000/auth/login', {
+      const response = await axios.post(`${BASE_URL}/auth/login`, {
         email: formData.email,
         senha: formData.senha,
       });
 
-      const { role, access_token: token, id: userId, id_estacionamento } = response.data;
+      const { role, access_token: token, id: userId } = response.data;
 
       if (role && token) {
-        // Armazenando o token JWT e o ID do usuário no AsyncStorage
         await AsyncStorage.setItem('token', token);
-        await AsyncStorage.setItem('userId', userId);
-        await AsyncStorage.setItem('id_estacionamento', id_estacionamento);
+        await AsyncStorage.setItem('userId', userId.toString());
 
-     
-
-        // Verificar se o id_estacionamento está armazenado
-        const storedIdEstacionamento = await AsyncStorage.getItem('id_estacionamento');
-        console.log('id_estacionamento armazenado:', storedIdEstacionamento);
-
-        // Redireciona conforme o perfil do usuário
         if (role === 'ADMIN') {
-          navigation.navigate('AdminDashboard'); // Navega para o painel do admin
+          navigation.navigate('AdminDashboard');
         } else if (role === 'CLIENT') {
-          navigation.navigate('ClientDashboard'); // Navega para o painel do cliente
+          navigation.navigate('ClientDashboard');
         } else {
           setError('Perfil inválido');
         }
@@ -56,8 +49,8 @@ const Login = () => {
         setError('Erro ao fazer login: dados inválidos');
       }
     } catch (error) {
+      console.error('Erro completo:', error);
       setError('Erro ao fazer login. Tente novamente!');
-      console.error('Erro ao fazer login:', error);
     }
   };
 

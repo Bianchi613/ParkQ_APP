@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { View, Text, TextInput, TouchableOpacity, Modal, Button, StyleSheet, FlatList } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Modal, Button, StyleSheet, FlatList, ActivityIndicator, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Header from "../Layout/Header";
+
+// Definindo a URL base do backend
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
 const ParkingManagement = () => {
   const navigate = useNavigation();
@@ -14,6 +17,7 @@ const ParkingManagement = () => {
   const [currentParking, setCurrentParking] = useState({});
   const [currentSpot, setCurrentSpot] = useState({});
   const [error, setError] = useState('');
+  const [loadingSpots, setLoadingSpots] = useState(false);
 
   useEffect(() => {
     fetchParkings();
@@ -27,7 +31,7 @@ const ParkingManagement = () => {
 
   const fetchParkings = async () => {
     try {
-      const response = await fetch("http://localhost:3000/estacionamentos");
+      const response = await fetch(`${BASE_URL}/estacionamentos`);
       const data = await response.json();
       setParkings(data);
     } catch (error) {
@@ -36,19 +40,24 @@ const ParkingManagement = () => {
   };
 
   const fetchSpots = async (parkingId) => {
+    setLoadingSpots(true);
     try {
-      const response = await fetch(`http://localhost:3000/vagas?id_estacionamento=${parkingId}`);
+      const response = await fetch(`${BASE_URL}/vagas?id_estacionamento=${parkingId}`);
       const data = await response.json();
+      console.log("Vagas recebidas:", data); // Depuração
       setSpots(data);
     } catch (error) {
+      console.error("Erro ao buscar vagas:", error); // Depuração
       setError("Erro ao buscar vagas");
+    } finally {
+      setLoadingSpots(false);
     }
   };
 
   const handleSaveParking = async (parking) => {
     const url = parking.id
-      ? `http://localhost:3000/estacionamentos/${parking.id}`
-      : "http://localhost:3000/estacionamentos";
+      ? `${BASE_URL}/estacionamentos/${parking.id}`
+      : `${BASE_URL}/estacionamentos`;
     const method = parking.id ? "PUT" : "POST";
 
     try {
@@ -68,7 +77,7 @@ const ParkingManagement = () => {
   };
 
   const handleSaveSpot = async (spot) => {
-    const url = spot.id ? `http://localhost:3000/vagas/${spot.id}` : "http://localhost:3000/vagas";
+    const url = spot.id ? `${BASE_URL}/vagas/${spot.id}` : `${BASE_URL}/vagas`;
     const method = spot.id ? "PATCH" : "POST";
 
     try {
@@ -89,7 +98,7 @@ const ParkingManagement = () => {
 
   const handleDeleteParking = async (id) => {
     try {
-      const response = await fetch(`http://localhost:3000/estacionamentos/${id}`, {
+      const response = await fetch(`${BASE_URL}/estacionamentos/${id}`, {
         method: "DELETE",
       });
       if (response.ok) {
@@ -102,7 +111,7 @@ const ParkingManagement = () => {
 
   const handleDeleteSpot = async (id) => {
     try {
-      const response = await fetch(`http://localhost:3000/vagas/${id}`, {
+      const response = await fetch(`${BASE_URL}/vagas/${id}`, {
         method: "DELETE",
       });
       if (response.ok) {
@@ -122,7 +131,7 @@ const ParkingManagement = () => {
   };
 
   return (
-    <View style={styles.parkingManagement}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Header />
       <Text style={styles.header}>Gerenciamento de Estacionamentos e Vagas</Text>
 
@@ -164,7 +173,10 @@ const ParkingManagement = () => {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.actionButton}
-                  onPress={() => setSelectedParking(item)}
+                  onPress={() => {
+                    console.log("Estacionamento selecionado:", item); // Depuração
+                    setSelectedParking(item);
+                  }}
                 >
                   <Text style={styles.buttonText}>Ver Vagas</Text>
                 </TouchableOpacity>
@@ -185,35 +197,40 @@ const ParkingManagement = () => {
             <Text style={styles.buttonText}>Adicionar Vaga</Text>
           </TouchableOpacity>
 
-          <FlatList
-            data={spots}
-            renderItem={({ item }) => (
-              <View style={styles.spotItem}>
-                <Text style={styles.spotItemText}>{item.numero}</Text>
-                <Text style={styles.spotItemText}>{item.status}</Text>
-                <Text style={styles.spotItemText}>{item.tipo}</Text>
-                <Text style={styles.spotItemText}>{item.reservada ? "Sim" : "Não"}</Text>
-                <View style={styles.actionButtons}>
-                  <TouchableOpacity
-                    style={styles.actionButton}
-                    onPress={() => {
-                      setCurrentSpot(item);
-                      setShowSpotForm(true);
-                    }}
-                  >
-                    <Text style={styles.buttonText}>Editar</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.actionButton}
-                    onPress={() => handleDeleteSpot(item.id)}
-                  >
-                    <Text style={styles.buttonText}>Excluir</Text>
-                  </TouchableOpacity>
+          {loadingSpots ? (
+            <ActivityIndicator size="large" color="#2B6CB0" style={styles.loading} />
+          ) : (
+            <FlatList
+              data={spots}
+              renderItem={({ item }) => (
+                <View style={styles.spotItem}>
+                  <Text style={styles.spotItemText}>Número: {item.numero}</Text>
+                  <Text style={styles.spotItemText}>Status: {item.status}</Text>
+                  <Text style={styles.spotItemText}>Tipo: {item.tipo}</Text>
+                  <Text style={styles.spotItemText}>Reservada: {item.reservada ? "Sim" : "Não"}</Text>
+                  <View style={styles.actionButtons}>
+                    <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={() => {
+                        setCurrentSpot(item);
+                        setShowSpotForm(true);
+                      }}
+                    >
+                      <Text style={styles.buttonText}>Editar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={() => handleDeleteSpot(item.id)}
+                    >
+                      <Text style={styles.buttonText}>Excluir</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
-            )}
-            keyExtractor={(item) => item.id.toString()}
-          />
+              )}
+              keyExtractor={(item) => item.id.toString()}
+              style={styles.spotList} // Adicionando estilo para o FlatList de vagas
+            />
+          )}
         </View>
       )}
 
@@ -268,28 +285,32 @@ const ParkingManagement = () => {
           <Button title="Cancelar" onPress={() => setShowSpotForm(false)} />
         </View>
       </Modal>
-    </View>
+    </ScrollView>
   );
-};const styles = StyleSheet.create({
-  parkingManagement: {
-    flex: 1,
-    padding: 5,
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    padding: 20,
     backgroundColor: '#F9FAFB',
   },
   header: {
-    fontSize: 28,
+    fontSize: 15,
     fontWeight: 'bold',
-    color: '#2D3748', // Azul escuro
-    marginBottom: 10,
+    color: '#2D3748',
+    marginBottom: 20,
+    textAlign: 'center',
   },
   subHeader: {
-    fontSize: 22,
+    fontSize: 15,
     fontWeight: '600',
-    color: '#2D3748', // Azul escuro
-    marginVertical: 10,
+    color: '#2D3748',
+    marginVertical: 20,
+    textAlign: 'center',
   },
   button: {
-    backgroundColor: '#1A202C', // Azul escuro quase preto
+    backgroundColor: '#1A202C',
     padding: 12,
     borderRadius: 5,
     alignItems: 'center',
@@ -301,16 +322,18 @@ const ParkingManagement = () => {
   },
   parkingItem: {
     backgroundColor: '#fff',
-    padding: 10,
+    padding: 15,
     borderRadius: 8,
     marginVertical: 10,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 5,
+    elevation: 3,
   },
   parkingItemText: {
     fontSize: 16,
-    color: '#2D3748', // Azul escuro
+    color: '#2D3748',
+    marginBottom: 5,
   },
   actionButtons: {
     flexDirection: 'row',
@@ -318,9 +341,12 @@ const ParkingManagement = () => {
     marginTop: 10,
   },
   actionButton: {
-    backgroundColor: '#2B6CB0', // Azul cinza escuro
+    backgroundColor: '#2B6CB0',
     padding: 8,
     borderRadius: 5,
+    flex: 1,
+    marginHorizontal: 5,
+    alignItems: 'center',
   },
   modalContent: {
     padding: 20,
@@ -331,8 +357,9 @@ const ParkingManagement = () => {
   modalTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#2D3748', // Azul escuro
+    color: '#2D3748',
     marginBottom: 20,
+    textAlign: 'center',
   },
   input: {
     padding: 12,
@@ -343,20 +370,29 @@ const ParkingManagement = () => {
     backgroundColor: '#F9FAFB',
   },
   spotSection: {
+    flex: 1,
     marginTop: 20,
   },
   spotItem: {
     backgroundColor: '#fff',
-    padding: 10,
+    padding: 15,
     borderRadius: 8,
     marginVertical: 10,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 5,
+    elevation: 3,
   },
   spotItemText: {
     fontSize: 16,
-    color: '#2D3748', // Azul escuro
+    color: '#2D3748',
+    marginBottom: 5,
+  },
+  loading: {
+    marginTop: 20,
+  },
+  spotList: {
+    flex: 1, // Garante que o FlatList ocupe o espaço disponível
   },
 });
 

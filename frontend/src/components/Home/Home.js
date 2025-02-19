@@ -38,26 +38,26 @@ const styles = StyleSheet.create({
   },
   content: {
     backgroundColor: '#ffffff', // Fundo branco para o conteúdo
-    padding: 50,
-    borderRadius: 15,
-    width: '30%',
+    padding: 15, // Padding reduzido
+    borderRadius: 10, // Bordas mais arredondadas
+    width: '90%', // Ajustei a largura para 90% da tela
     alignItems: 'center',
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 6,  // Sombra para Android
+    shadowOffset: { width: 0, height: 2 }, // Sombra mais suave
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,  // Sombra para Android
   },
   title: {
-    fontSize: 35,
+    fontSize: 24, // Título menor
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 5, // Espaçamento reduzido
     color: '#333', // Título escuro
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: 14, // Subtítulo menor
     color: '#555', // Subtítulo mais suave
-    marginBottom: 30,
+    marginBottom: 15, // Espaçamento reduzido
     textAlign: 'center',
   },
   buttons: {
@@ -66,26 +66,26 @@ const styles = StyleSheet.create({
   },
   btnPrimary: {
     backgroundColor: '#000', // Botão preto
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 25,
-    marginBottom: 15,
+    paddingVertical: 8, // Padding reduzido
+    paddingHorizontal: 16, // Padding reduzido
+    borderRadius: 20, // Bordas mais arredondadas
+    marginBottom: 8, // Espaçamento reduzido
     width: '100%',
     alignItems: 'center',
   },
   btnSecondary: {
-    backgroundColor:  '#000',
+    backgroundColor: '#000',
     borderWidth: 2,
     borderColor: '#000', // Borda preta
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 25,
+    paddingVertical: 8, // Padding reduzido
+    paddingHorizontal: 16, // Padding reduzido
+    borderRadius: 20, // Bordas mais arredondadas
     width: '100%',
     alignItems: 'center',
   },
   btnText: {
     color: '#fff', // Texto branco para contraste
-    fontSize: 16,
+    fontSize: 12, // Fonte menor
     fontWeight: 'bold',
     textTransform: 'uppercase',
   },

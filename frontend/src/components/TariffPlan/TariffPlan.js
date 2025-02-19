@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Importando AsyncStorage
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Header from "../Layout/Header"; // Importando o Header
+
+const BASE_URL = "http://localhost:3000"; // IP do backend na rede local
 
 const TariffPlan = () => {
   const [planos, setPlanos] = useState([]);
@@ -23,7 +25,7 @@ const TariffPlan = () => {
 
   const fetchPlanos = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/planos-tarifacao");
+      const response = await axios.get(`${BASE_URL}/planos-tarifacao`);
       setPlanos(response.data);
     } catch (error) {
       setError("Erro ao buscar planos de tarifação.");
@@ -32,16 +34,13 @@ const TariffPlan = () => {
   };
 
   const handleSubmit = async () => {
-    // Validando os dados
     if (parseFloat(taxaBase) < 0 || parseFloat(taxaHora) < 0 || parseFloat(taxaDiaria) < 0) {
       setError("As taxas devem ser valores positivos.");
       return;
     }
 
-    // Convertendo a data para o formato YYYY-MM-DD antes de enviar
-    const dataFormatada = new Date(dataVigencia).toLocaleDateString('en-CA'); // Formato YYYY-MM-DD
+    const dataFormatada = new Date(dataVigencia).toLocaleDateString('en-CA');
 
-    // Validando se a data de vigência é válida
     if (new Date(dataFormatada) < new Date()) {
       setError("A data de vigência não pode ser uma data passada.");
       return;
@@ -49,7 +48,7 @@ const TariffPlan = () => {
 
     const novoPlano = {
       descricao,
-      data_vigencia: dataFormatada, // Envia a data no formato correto
+      data_vigencia: dataFormatada,
       taxa_base: parseFloat(taxaBase),
       taxa_hora: parseFloat(taxaHora),
       taxa_diaria: parseFloat(taxaDiaria),
@@ -57,10 +56,10 @@ const TariffPlan = () => {
 
     try {
       if (editingPlan) {
-        await axios.patch(`http://localhost:3000/planos-tarifacao/${editingPlan.id}`, novoPlano);
+        await axios.patch(`${BASE_URL}/planos-tarifacao/${editingPlan.id}`, novoPlano);
         setSuccess("Plano atualizado com sucesso!");
       } else {
-        await axios.post("http://localhost:3000/planos-tarifacao", novoPlano);
+        await axios.post(`${BASE_URL}/planos-tarifacao`, novoPlano);
         setSuccess("Plano criado com sucesso!");
       }
       fetchPlanos();
@@ -74,7 +73,7 @@ const TariffPlan = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/planos-tarifacao/${id}`);
+      await axios.delete(`${BASE_URL}/planos-tarifacao/${id}`);
       setSuccess("Plano excluído com sucesso!");
       fetchPlanos();
     } catch (error) {
@@ -86,7 +85,7 @@ const TariffPlan = () => {
   const handleEdit = (plano) => {
     setEditingPlan(plano);
     setDescricao(plano.descricao);
-    setDataVigencia(plano.data_vigencia.split("T")[0]); // Pega a data no formato correto
+    setDataVigencia(plano.data_vigencia.split("T")[0]);
     setTaxaBase(plano.taxa_base);
     setTaxaHora(plano.taxa_hora);
     setTaxaDiaria(plano.taxa_diaria);
@@ -181,7 +180,7 @@ const TariffPlan = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 60,
+    padding: 20,
     backgroundColor: '#f5f5f5',
   },
   header: {
@@ -226,15 +225,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   planList: {
-    flexDirection: 'row',  // Exibe os planos horizontalmente
     marginTop: 20,
   },
   planItem: {
     backgroundColor: '#fff',
     padding: 20,
     borderRadius: 8,
-    marginRight: 10, // Espaço entre os itens
-    width: 250,  // Definindo a largura dos itens
+    marginRight: 10,
+    width: 250,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
